@@ -7,8 +7,9 @@
 (define (item-callback str #:editor ed) 
   (define line (get-text-from-user "Goto line" "Line number:"
                                    #:validate string->number))
-  (send ed set-position (send ed paragraph-start-position 
-                              (sub1 (string->number line))))
-  str)
+  (when line
+    (send ed set-position (send ed paragraph-start-position
+                                (sub1 (string->number line)))))
+  #f)
 
 ;; See the manual in the Script/Help menu for more information.
