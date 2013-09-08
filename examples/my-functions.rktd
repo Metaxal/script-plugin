@@ -1,0 +1,7 @@
+((label . "My &Functions")
+ (functions . ((my-function1 "My Function #&1")
+               (my-function2 "My Function #&2")
+               (my-function3 "My Function #&3")
+               ))
+ (output-to . message-box)
+ )

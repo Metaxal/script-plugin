@@ -1,0 +1,6 @@
+compile/
+.unison/
+*.zo
+*~
+.@__thumb/
+

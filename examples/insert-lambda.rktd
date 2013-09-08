@@ -1,0 +1,7 @@
+((label . "Snippets")
+ (functions . ((item-callback "Insert Lambda")))
+ (shortcut . #f)
+ (shortcut-prefix . #f)
+ (help-string . "Help String")
+ (output-to . selection)
+ (active . #t))
