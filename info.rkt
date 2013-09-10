@@ -1,6 +1,20 @@
 #lang setup/infotab
 
-(define deps (list "base"))
+(define deps
+  '("base"
+    "at-exp-lib"
+    "drracket"
+    "drracket-plugin-lib"
+    "gui-lib"
+    "html-lib"
+    "net-lib"
+    "planet-lib"
+    "slideshow-lib"
+    "srfi-lite-lib"
+    "gui-doc"
+    "racket-doc"
+    "scribble-lib"
+    ))
 
 (define name                 "User Script Plugin")
 (define drracket-tools       '(("tool.rkt")))
