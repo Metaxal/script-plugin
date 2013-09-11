@@ -18,6 +18,8 @@
        (values r g b "(make-color ~a ~a ~a)")]
       [`(,(? number? r) ,(? number? g) ,(? number? b))
        (values r g b "~a ~a ~a")]
+      [`(#(,(? number? r) ,(? number? g) ,(? number? b)))
+       (values r g b "#(~a ~a ~a)")]
       [else (values #f #f #f "(make-color ~a ~a ~a)")]))
   (let ([c (get-color-from-user #f #f (and r (make-color r g b)))])
     (and c
@@ -30,3 +32,4 @@
 ; (make-object color% 90 158 163)
 ; 65 65 156
 ; (make-color 142 170 199)
+; #(1 2 149)
