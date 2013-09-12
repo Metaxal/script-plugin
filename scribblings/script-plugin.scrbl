@@ -8,7 +8,7 @@
           (for-label racket/gui)
           (for-label drracket/tool-lib))
 
-@(define-runtime-path examples-path (build-path 'up 'up "examples"))
+@(define-runtime-path examples-path (build-path 'up "examples"))
 @(define (example-file f)
    (let ([p (build-path examples-path f)])
      (unless (file-exists? p)
@@ -16,7 +16,8 @@
      p))
 
 @(define (example-link f)
-   (hyperlink (example-file f)
+   (filepath f)
+   #;(hyperlink (example-file f) ; we cannot use an hyperlink because I get an error "from root: link going out"
               (filepath f)))
 
 @(define (codeblock/file file)

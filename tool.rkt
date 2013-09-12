@@ -17,6 +17,7 @@ License: LGPL v3 or higher (http://www.gnu.org/copyleft/lesser.html)
          racket/dict
          racket/list
          racket/runtime-path ; for the help menu
+         help/search
          (for-syntax racket/base) ; for help menu
          net/sendurl ; for the help menu
          framework ; for preferences (too heavy a package?)
@@ -71,9 +72,6 @@ Scripts:
     (displayln "Now run 'raco setup -P orseau script-plugin.plt 1 0'"))
   (add-link)
   )
-
-(define-runtime-path help-path
-  (build-path "planet-docs" "manual" "index.html"))
 
 (define-runtime-path examples-path
   (build-path "examples"))
@@ -330,7 +328,7 @@ Scripts:
           )
         
         (define (open-help)
-          (send-url/file help-path))
+          (send-main-page #:sub "script-plugin/index.html"))
         
         (define (bug-report)
           (send-url 

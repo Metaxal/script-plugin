@@ -21,7 +21,10 @@
 (define drracket-tool-names  '("Script Plugin"))
 (define drracket-tool-icons  '(#f))
 
-(define scribblings '(("scribblings/manual/manual.scrbl" () (tool 3.3))))
+(define scribblings '(("scribblings/script-plugin.scrbl" () (tool) "script-plugin")))
+
+(define compile-omit-paths
+  '("examples/color-theme.rkt"))
 
 (define blurb
   '("Easily make plugin scripts for DrRacket."
