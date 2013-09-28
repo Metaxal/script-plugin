@@ -75,7 +75,7 @@
 
 (define (theme->file-string [theme (get-current-theme)])
   (with-output-to-string
-   (λ()(displayln "#lang setup/infotab\n")
+   (λ()(displayln "#lang info\n")
      (pretty-print
       `(define framework:color-schemes 
          '(,(theme->hash theme)))
