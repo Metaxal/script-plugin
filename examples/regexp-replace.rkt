@@ -26,7 +26,7 @@
     ; title from to protect-from protect-to
     ("Remove trailing spaces" "\\s*$" "" #f #f)
     ("Remove leading spaces" "^\\s*" "" #f #f)
-    ("Comment out" "^(.*)$" ";\\1" #f #f)
+    ("Comment out" "^" ";" #f #f)
     ("Uncomment" "^;" "" #f #f)
     ))
 (define ch-templates
