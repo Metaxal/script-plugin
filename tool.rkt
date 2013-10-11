@@ -45,7 +45,6 @@ License: LGPL v3 or higher (http://www.gnu.org/copyleft/lesser.html)
   no need to click on a menu. Usefull to add some menu to DrRacket?
   - may require to add a 'on-exit' method, that is run when 'Unload persistent scripts' is clicked.
 - rename "examples" directory to "scripts" or "bundled-scripts"
-- PLaneT2 package
 
 Scripts:
 - new file in same directory
@@ -69,7 +68,7 @@ Scripts:
 (define (script-dir)
   (preferences:get 'user-script-dir))
 
-;(displayln (script-dir))
+(log-script-plugin-info "Using script-directory: ~a" (script-dir))
 
 ; Copy sample scripts at installation (or if user's script directory does not exist):
 (unless (directory-exists? (script-dir))
@@ -83,7 +82,6 @@ Scripts:
 (define (choose-script-dir)
   (let ([d (get-directory "Choose a directory to store scripts" #f
                           (script-dir))])
-    ;(displayln d)
     (when d (set-script-dir d))))
 
 (define (error-message-box filename e)
@@ -135,12 +133,10 @@ Scripts:
           ; for a frame:text% :
           ;(define text (send frame get-editor))
           ; for DrRacket:
-          
           (define defed (get-definitions-text))
           (if (send defed has-focus?)
               defed
-              (get-interactions-text))
-          )
+              (get-interactions-text)))
         
         (define frame this)
         
@@ -193,20 +189,17 @@ Scripts:
             ; For frame:text% :
             ;(send (get-the-text-editor) load-file file)
             ; For DrRacket:
-            (send this open-in-new-tab file)
-            ))
+            (send this open-in-new-tab file)))
         
         (define (open-script)
           (define file (get-file "Open a script" frame (script-dir) #f #f '() 
                                  '(("Racket" "*.rkt"))))
-          (edit-script file)
-          )
+          (edit-script file))
         
         (define (open-script-properties)
           (define file (get-file "Open a script properties" frame (script-dir) #f #f '() 
                                  '(("Property file" "*.rktd"))))
-          (edit-script file)
-          )
+          (edit-script file))
         
         ;; Ask the user for a script to import from the bundled script directory 
         ;; (or any other directory for that matter).
@@ -236,10 +229,9 @@ Scripts:
               (if (file-exists? src-filed)
                   (begin (copy-file src-file  dest-file  #t)
                          (copy-file src-filed dest-filed #t))
-                  (message-box "Not a script" 
+                  (message-box "Not a script"
                                "This is not a script file (no associated .rktd file found)"
                                frame '(caution ok))))))
-        
 
         ;; dict for persistent scripts:
         ;; the module is instaciated only once, and made available for future calls.
@@ -290,8 +282,7 @@ Scripts:
                     (let ([k-v (sort (map (λ(k)(assoc k kw-dict)) kws)
                                      keyword<? #:key car)])
                       (keyword-apply f (map car k-v) (map cdr k-v) str '())
-                      )))
-                )))
+                      ))))))
           (define (insert-to-text text)
             ; Inserts the text, possibly overwriting the selection:
             (send text begin-edit-sequence)
@@ -307,8 +298,7 @@ Scripts:
                (insert-to-text text)]
               [(message-box)
                (message-box "Ouput" str-out this)]
-              ))
-          )
+              )))
         
         (define (open-help)
           (send-main-page #:sub "script-plugin/index.html"))
@@ -339,8 +329,7 @@ Scripts:
           ;; remove all scripts items, after the persistent ones:
           (for ([item (list-tail (send scripts-menu get-items) 2)])
             (log-script-plugin-info "Deleting menu item ~a... " (send item get-label))
-            (send item delete)
-            )
+            (send item delete))
           ;; add script items:
           ; the menu-hash holds the submenus, to avoid creating them more than once
           (define menu-hash (make-hash))
@@ -394,11 +383,9 @@ Scripts:
                                                            (run-script fun
                                                                        (build-path (script-dir) f)
                                                                        output-to
-                                                                       persistent))]))
-                              ))
+                                                                       persistent))]))))
                           ; next dict:
-                          (loop (read))
-                          ))))))))
+                          (loop (read))))))))))
           (log-script-plugin-info "Ok. Took ~ams" (- (current-milliseconds) secs)))
         
         (define manage-menu (new menu% [parent scripts-menu] [label "Manage scripts"]))
