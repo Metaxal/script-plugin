@@ -54,24 +54,7 @@ Scripts:
   This could also be added as an automatically refreshed menu to DrRacket
 |#
 
-#| Package managing:
-
-; Development link:
-; `raco link script-plugin` in the parent directory
-; `raco setup script-plugin`
-
-;|#
-
-; TODO: REMOVE
-(module+ main
-  (require planet/util)
-  (define (add-link)
-    (displayln "Adding hard link.")
-    (add-hard-link "orseau" "script-plugin.plt" 1 0 (current-directory))
-    ;(remove-hard-link "orseau" "script-plugin.plt" 1 0)
-    (displayln "Now run 'raco setup -P orseau script-plugin.plt 1 0'"))
-  (add-link)
-  )
+(define-logger script-plugin)
 
 (define-runtime-path examples-path
   (build-path "examples"))
@@ -352,13 +335,11 @@ Scripts:
         (define (reload-scripts-menu)
           (define secs (current-milliseconds))
           (set! menu-reload-count (add1 menu-reload-count))
-          #;(printf "Script menu rebuild #~a..." menu-reload-count)
+          (log-script-plugin-info "Script menu rebuild #~a..." menu-reload-count)
           ;; remove all scripts items, after the persistent ones:
           (for ([item (list-tail (send scripts-menu get-items) 2)])
-            (printf "Deleting menu item ~a... " (send item get-label))
-            (flush-output)
+            (log-script-plugin-info "Deleting menu item ~a... " (send item get-label))
             (send item delete)
-            (printf "Ok.\n")
             )
           ;; add script items:
           ; the menu-hash holds the submenus, to avoid creating them more than once
@@ -418,7 +399,7 @@ Scripts:
                           ; next dict:
                           (loop (read))
                           ))))))))
-          #;(printf "Ok. Took ~ams\n" (- (current-milliseconds) secs)))
+          (log-script-plugin-info "Ok. Took ~ams" (- (current-milliseconds) secs)))
         
         (define manage-menu (new menu% [parent scripts-menu] [label "Manage scripts"]))
         (for ([(lbl cbk) (in-dict `(("New script..."              . ,new-script)
