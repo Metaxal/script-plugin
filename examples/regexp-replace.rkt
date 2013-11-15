@@ -28,6 +28,8 @@
     ("Remove leading spaces" "^\\s*" "" #f #f)
     ("Comment out" "^" ";" #f #f)
     ("Uncomment" "^;" "" #f #f)
+    ("Markdown quotes -> @racket[]" "`([^`]+)`" "@racket[\\1]" #f #f)
+    ("Markdown item -> @item{}" "\\s*\\*\\s*(.*)\\s*" "@item{\\1}" #f #f)
     ))
 (define ch-templates
   (new choice% [parent f]
