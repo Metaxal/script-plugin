@@ -13,6 +13,7 @@
     "srfi-lite-lib"
     "gui-doc"
     "racket-doc"
+    "racket-index"
     "scribble-lib"
     ))
 
