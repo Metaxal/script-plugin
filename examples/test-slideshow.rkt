@@ -14,13 +14,12 @@
 
 (provide item-callback)
 (define (item-callback str #:editor ed)
-  (define pic
-    (apply hc-append
-           (for/list ([w (regexp-split #px"\\s+" str)])
-             (text w '() 24 (/ pi 6))
-             )))
-  (send ed insert
-        (pict->snip 
-         (cc-superimpose (colorize pic "black")
-                         (colorize (at pic 3 3) "white"))))
+  (define pic (hc-append (colorize (filled-rectangle 10 10) "blue")
+                         (colorize (disk 20) "green")
+                         (colorize (filled-rectangle 10 30) "red")))
+  (send* ed
+    (insert "--> ")
+    (insert (pict->snip pic))
+    (insert " <--"))
+  
   #f)
