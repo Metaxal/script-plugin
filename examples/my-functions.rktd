@@ -4,4 +4,5 @@
                (my-function3 "My Function #&3")
                ))
  (output-to . message-box)
+ (active . #f)
  )
