@@ -9,7 +9,7 @@
 ;; To place it in the editor where the cursor is, replace
 ;; #:definitions with #:editor.
 (provide item-callback)
-(define (item-callback str #:definitions edit) 
+(define (item-callback str #:editor edit) 
   (send edit begin-edit-sequence)
   (let ([selection-start (send edit get-start-position)]
         [selection-end (+ 1 (send edit get-end-position))])
