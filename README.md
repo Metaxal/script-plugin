@@ -1,5 +1,13 @@
 The script plugin is a tool for DrRacket which allows to quickly and easily extend DrRacket features, without having to restart it.
 The scripts are automatically accessible from a new menu in DrRacket.
+
+# Installation
+
+```
+raco pkg install script-plugin
+```
+
+# Usage
 See the docs for how to make a script.
 
 It is already packed with a number of useful such scripts:
