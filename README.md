@@ -8,7 +8,7 @@ raco pkg install script-plugin
 ```
 
 # Usage
-See the docs for how to make a script.
+See the [docs](http://pkg-build.racket-lang.org/doc/script-plugin/index.html) for how to make a script.
 
 It is already packed with a number of useful such scripts:
 * **abstract**: When you want to replace an expression with a variable
