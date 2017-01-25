@@ -64,19 +64,19 @@ The full history is saved, so the user can get back like in an undo list.
 ;; Shows the list of bookmarks
 (provide bookmarks)
 (define (bookmarks str #:definitions ed) 
-  (define txt (send ed get-text))
-  (define marks
-    (filter values
-            (for/list ([line (in-lines (open-input-string txt))]
-                       [i (in-naturals)])
-              ;(define m (regexp-match #px"^\\s*;@@\\s*(.*)" line))
-              ; To be usable with section headers:
-              (define m (or (regexp-match #px";(?:@@*|==*|::*)\\s*(.*[\\w-].*?)[@=:;]*" line)
-                            (regexp-match #px"#:title \"(.*)\"" line))) ; for slideshow
-              (and m (list i (second m))))))
-  ;(message-box "Bookmarks" (string-append* (add-between (map ~a marks) "\n")))
-  (bookmark-frame marks ed)
+  (bookmark-frame (get-marks ed) ed)
   #f)
+
+(define (get-marks ed)
+  (define txt (send ed get-text))
+  (filter values
+          (for/list ([line (in-lines (open-input-string txt))]
+                     [i (in-naturals)])
+            ;(define m (regexp-match #px"^\\s*;@@\\s*(.*)" line))
+            ; To be usable with section headers:
+            (define m (or (regexp-match #px";(?:@@*|==*|::*)\\s*(.*[\\w-].*?)[@=:;]*" line)
+                          (regexp-match #px"#:title \"(.*)\"" line))) ; for slideshow
+            (and m (list i (second m))))))
 
 ;; Adds a bookmark on the current line
 (provide add-bookmark)
@@ -100,6 +100,9 @@ The full history is saved, so the user can get back like in an undo list.
       (ed-goto-line ed (first (list-ref marks sel))))
     (when (send cb get-value)
       (send fr show #f)))
+  (define (refresh-marks lb)
+    (set! marks (get-marks ed))
+    (send lb set (map second marks)))
   (define lb (new list-box% [label #f]
                   [parent fr]
                   [choices (map second marks)] ; show line number too?
@@ -108,7 +111,9 @@ The full history is saved, so the user can get back like in an undo list.
                               (when (eq? (send ev get-event-type) 'list-box-dclick)
                                 (list-box-select lb)))]
                   ))
-  (define cb (new check-box% [parent fr] [label "Close on select?"] [value #t]))
+  (define hp (new horizontal-panel% [parent fr] [alignment '(center center)] [stretchable-height #f]))
+  (define bt-refresh (new button% [parent hp] [label "Refresh"] [callback (λ _ (refresh-marks lb))]))
+  (define cb (new check-box% [parent hp] [label "Close on select?"] [value #t]))
   (define bt (new button% [parent fr] [label "Go!"] [callback (λ _ (list-box-select lb))]))
   ; Center frame on parent frame
   (send fr reflow-container)
