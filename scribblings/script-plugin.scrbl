@@ -59,7 +59,7 @@ like DrRacket's frame and the definition or interaction editor.
 
 To install, simply evaluate:
 
-@racket[(require (planet orseau/script-plugin/tool))]
+@commandline{raco pkg install script-plugin}
 
 Wait for the installation process to finish, and then restart DrRacket.
 You should now see a new @italic{Scripts} menu.
