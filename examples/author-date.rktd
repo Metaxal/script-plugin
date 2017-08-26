@@ -3,7 +3,7 @@
                (author-date-time "author date time")
                (author-email-date "author email date")
                (author-email-date-time "author email date time")
-               (license-wtfpl "License WTPFL")
+               (license-wtfpl "License WTFPL")
                (license-mit "License MIT")))
  (shortcut . #f)
  (shortcut-prefix . #f)
