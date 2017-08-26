@@ -57,7 +57,7 @@ like DrRacket's frame and the definition or interaction editor.
 @section{Installation}
 
 To install, either look for @tt{script-plugin} in the DrRacket menu @italic{File/Package Manager},
-or run the raco command @tt{raco pkg install script-plugin}.
+or run the raco command @commandline{raco pkg install script-plugin}.
 
 A warning about @racket{item-callback} may appear, you can safely ignore it.
 
