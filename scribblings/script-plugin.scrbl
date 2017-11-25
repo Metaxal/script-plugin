@@ -44,8 +44,7 @@ Creating a new script is as easy as a click on a menu item.
 Each script is automatically added as an item to the @italic{Scripts} menu, without needing to restart DrRacket.
 A keyboard shortcut can be assigned to a script (via the menu item).
 By default, a script takes as input the currently selected text, and outputs the replacement text.
-There is also direct access to some elements of DrRacket for advanced
-(though simplified since there is no need to create a dedicated plugin) scripting,
+There is also direct access to some elements of DrRacket GUI for advanced scripting,
 like DrRacket's frame and the definition or interaction editor.
 
 @section{Some demonstration videos}
@@ -57,14 +56,52 @@ like DrRacket's frame and the definition or interaction editor.
 
 @section{Installation}
 
-To install, simply evaluate:
+To install, either look for @tt{script-plugin} in the DrRacket menu @italic{File/Package Manager},
+or run the raco command @commandline{raco pkg install script-plugin}.
 
-@racket[(require (planet orseau/script-plugin/tool))]
+A warning about @racket{item-callback} may appear, you can safely ignore it.
 
-Wait for the installation process to finish, and then restart DrRacket.
-You should now see a new @italic{Scripts} menu.
+(If the documentation does not build up correctly, run @tt{raco pkg setup @literal|{--}|doc-index}.)
 
-@section{First simple example}
+You need to restart DrRacket. Now you should have a new item @italic{Scripts} in the menu bar.
+
+@section{Sample scripts}
+
+@itemlist[
+ @item{Auto-completion (see @example-link{complete-word.rkt}) based on some predefined snippets (particularly useful for forms like @racket[parameterize]).}
+ @item{Search and replace in the selected text, possibly using @hyperlink["https://xkcd.com/208/"]{regular expressions}; some templates are also predefined
+  (see @example-link{regexp-replace.rkt}).}
+ @item{Dynamic abbrevation and word completion (see @example-link{dabbrev.rkt}):
+ In the editor, removes the right-hand-side part of the current word at the cursor position if any,
+and completes the left-hand-side word at the cursor position with the next possible
+rhs word occuring in the text. 
+The cursor position is not modified, therefore by calling this procedure repeatedly,
+it is possible to cycle among all the corresponding words.}
+ @item{Provided-by (see @example-link{provided-by.rkt}): place the cursor on a word, click on the @tt{Provided by} menu item and a list of the packages
+  defining the corresponding form shows up.}
+ @item{Enter submodule (see @example-link{enter-submod.rkt}): Place the cursor at the prompt in the interaction window, then click on one of the items in the @tt{Enter submodule} menu and press Enter; the corresponding submodule is now evaluated and entered.}
+ @item{Bookmarks (see @example-link{bookmarks.rkt}): Easily navigate your files
+ based on section comment headers (modify it to your liking!).}
+ @item{On-screen signature of the function at the cursor (see @example-link{def-signatures.rkt}, somewhat obsoleted by the blue boxes, but can show information about forms that are not in scope).}
+ @item{Commit/update files from repositories (see @example-link{git.rkt}).}
+ @item{Automatic reformatting and custom indentation (see @example-link{indent-table.rkt}), particularly useful for mid-line alignment.}
+ @item{ASCII frames and styling (upper-case, ASCII art, etc.) for comment titles, sections, etc. (see @example-link{sections.rkt}).}
+ @item{Automatic comments, e.g. with today's date, user name, licenses, etc. (see @example-link{author-date.rkt}).}
+ @item{Color chooser: Opens the color chooser and writes a string constructing an RGB color with @racket[make-color] (see @example-link{color-chooser.rkt}).}
+ @item{Open the directory of the current file in the editor (see @example-link{open-dir.rkt}.)}
+ @item{Open a terminal in the directory of the current file in DrRacket (see @example-link{open-terminal.rkt}.)}
+ @item{Easily open a core Racket file in DrRacket (see @example-link{open-collects.rkt}).}
+ @item{Turn DrRacket into a very rich text editor with @racket[slideshow] (see @example-link{test-slideshow.rkt}).}
+ @item{Add your own menus and scripts to DrRacket (see @example-link{test-menu.rkt}).}
+ @item{...}
+ ]
+
+You can easily modify all these scripts through @italic{Scripts/Manage scripts/Open script} and @italic{Open script properties}.
+
+You made a cool script that you'd like to share? Why not sending me a pull request on @hyperlink["https://github.com/Metaxal/script-plugin"]{github}, or if you don't know how that works just send me your files by email and I'll probably include them!
+
+
+@section{Make your own script: First simple example}
 
 Click on the @italic{Scripts/Manage scripts/New script...} menu item, and enter @italic{Reverse} for the script name.
 This creates and opens the files reverse.rkt and reverse.rktd in the script directory.
@@ -99,80 +136,82 @@ The script menu is rebuilt each time the user activates it, so that changes
 are taken into account as soon as possible.
 
 @subsection{The .rkt file}
-    This is the script file.
-    It must provide the @racket[item-callback] function,
-    as in the sample code.
-    It is meant to be executable by itself, as a normal module, to ease the testing process.
+This is the script file.
+It must provide the @racket[item-callback] function,
+as in the sample code.
+It is meant to be executable by itself, as a normal module, to ease the testing process.
 
-    @defproc[(item-callback [str string?]) (or/c string? (is-a?/c snip%) #f)]{
-    Returns the string meant to be inserted in place of the current selection,
-    or at the cursor if there is no selection.
-    If the returned value is not a @racket[string] or a @racket[snip%],
-    the selection is not modified (i.e., the file remains in a saved state if it was already saved).
-    }
-
-
-
-    This function signature can also be extended by (optional or mandatory) special keyword arguments:
-    @;(the exact signature is determined with @racket[procedure-keywords]):
-    @itemlist[
-               @item{@racket[#:file : (or/c path? #f)]
-
-                      The path to the current file of the definition window, or @racket[#f]
-                      if there is no such file (i.e., unsaved editor).
-
-                      @bold{Example:}
-                      @(racketblock
-                        (define (item-callback str #:file f)
-                          (string-append "(in " (if f (path->string f) "no-file") ": " str))
-                        )
-
-                      See also: @racket[file-name-from-path], @racket[filename-extension],
-                      @racket[path->string], @racket[split-path].
-                      }
-
-               @item{@racket[#:definitions : text%]
-
-                      The @racket[text%] editor of the current definition window.
-
-                      @bold{Example:} @example-link{insert-lambda.rkt}
-                      @;(codeblock/file (example-file "insert-lambda.rkt"))
-
-                      See @racket[text%] for more details.
-                      }
-
-               @item{@racket[#:interactions : text%]
-
-                      The @racket[text%] editor of the current interaction window.
-                      Similar to @racket[#:definitions].
-                      }
-
-               @item{@racket[#:editor : text%]
-
-                      The @racket[text%] current editor, either the definition or the interaction editor.
-                      Similar to @racket[#:definitions].
-                      }
-
-               @item{@racket[#:frame : drracket:unit:frame<%>]
-
-                      DrRacket's frame.
-                      For advanced scripting.
-
-                      @bold{Example:}
-                      @(racketblock
-                        (define (item-callback str #:frame fr)
-                          (send fr create-new-tab)
-                          #f)
-                        )
-                      }
-
-              ]
+@defproc[#:link-target? #f
+ (item-callback [str string?])
+ (or/c string? (is-a?/c snip%) #f)]{
+ Returns the string meant to be inserted in place of the current selection,
+ or at the cursor if there is no selection.
+ If the returned value is not a @racket[string] or a @racket[snip%],
+ the selection is not modified (i.e., the file remains in a saved state if it was already saved).
+}
 
 
 
-    The name of the function can also be changed,
-    but this requires to change it also in the @racket[functions]
-    entry of the .rktd file (see below), and the function must be @racket[provide]d.
+This function signature can also be extended by (optional or mandatory) special keyword arguments:
+@;(the exact signature is determined with @racket[procedure-keywords]):
+@itemlist[
+ @item{@racket[#:file : (or/c path? #f)]
+
+  The path to the current file of the definition window, or @racket[#f]
+  if there is no such file (i.e., unsaved editor).
+
+  @bold{Example:}
+  @(racketblock
+    (define (item-callback str #:file f)
+      (string-append "(in " (if f (path->string f) "no-file") ": " str))
+    )
+
+  See also: @racket[file-name-from-path], @racket[filename-extension],
+  @racket[path->string], @racket[split-path].
+ }
+
+ @item{@racket[#:definitions : text%]
+
+  The @racket[text%] editor of the current definition window.
+
+  @bold{Example:} @example-link{insert-lambda.rkt}
+  @;(codeblock/file (example-file "insert-lambda.rkt"))
+
+  See @racket[text%] for more details.
+ }
+
+ @item{@racket[#:interactions : text%]
+
+  The @racket[text%] editor of the current interaction window.
+  Similar to @racket[#:definitions].
+ }
+
+ @item{@racket[#:editor : text%]
+
+  The @racket[text%] current editor, either the definition or the interaction editor.
+  Similar to @racket[#:definitions].
+ }
+
+ @item{@racket[#:frame : drracket:unit:frame<%>]
+
+  DrRacket's frame.
+  For advanced scripting.
+
+  @bold{Example:}
+  @(racketblock
+    (define (item-callback str #:frame fr)
+      (send fr create-new-tab)
+      #f)
+    )
+ }
+
+ ]
+
+
+
+The name of the function can also be changed,
+but this requires to change it also in the @racket[functions]
+entry of the .rktd file (see below), and the function must be @racket[provide]d.
 
 @subsection{The .rktd file}
 
@@ -293,51 +332,20 @@ to the user script directory on installation.
 To force the recopy of all bundled scripts,
 just delete the user script directory (itself, not only its contents) and restart DrRacket.
 
-@section{Usage ideas and sample scripts}
-
-@itemlist[
-           @item{Auto-completion (see @example-link{complete-word.rkt})}
-           @item{On-screen signature of the function at the cursor (see @example-link{def-signatures.rkt}, much faster than launching the browser,
-                                                                        but less detailed)}
-           @item{Code snippets scripts, with keyboard shortcuts, e.g.,
-                 adding a @racket[require] line for each planet package you usually use, or a license header}
-           @item{Module template (e.g., the @filepath{info.rkt} file)}
-           @item{ASCII frames and styling (upper-case, ASCII art, etc.) for comment titles, sections, etc.
-                 (see @example-link{sections.rkt})}
-           @item{Automatic comments, e.g. with today's date, user name, etc. (see @example-link{author-date.rkt})}
-           @item{Automatic reformatting and custom indentation (see @example-link{indent-table.rkt})}
-           @item{Analyse the current file and display the results in a new tab, or
-                 Count the number of words/lines/characters and display it in a message-box}
-           @item{Perform a particular search and replace operation
-                 (see @example-link{regexp-replace.rkt})}
-           @item{Open the color chooser and make it output the constructor code for a color (see @example-link{color-chooser.rkt})}
-           @item{Open a new tab with a template code}
-           @item{Commit/update files from repositories}
-           @item{Perform various OS tasks, e.g., open the OS's browser or terminal in the directory of the current file}
-           @item{Turn DrRacket into a very rich text editor with @racket[slideshow]
-                                                                 (see @example-link{test-slideshow.rkt})}
-           @item{Add a spell checker for scribble to DrRacket}
-           @item{Add your own menus to DrRacket (see @example-link{test-menu.rkt})}
-           @item{Make an Overview frame for scrbl documents, with links to (sub)sections; This could also be added as an automatically refreshed menu to DrRacket}
-           @item{...}
-           ]
-
-Remark: Code snippets should probably be of rare usage, as one should better take advantage of
-Racket's wonderful macro system.
-In some cases however, snippets might be useful, e.g., to require your common module where
-all your usual macros and functions are defined, or for automatic comments.
-
 @section{Updating the Script Plugin package}
 
-To update the Script Plugin once already installed, just @racket[require] the newest version of the @PLaneT package.
-The user's scripts will not be modified in the process.
-There may be new bundled scripts or new versions of some bundled scripts in the new package; they won't be (re)installed by default.
-To (re)install them, import them with the @italic{Import bundled script} menu item.
-To import all bundled scripts at once, delete or rename the user script directory and (re)start DrRacket;
-the directory will be recreated with all bundled scripts (then move your own scripts from the renamed folder to this new one).
+To update the Script Plugin once already installed,
+either do so through the @italic{File/Package Manager} menu in DrRacket,
+or run @tt{raco pkg update script-plugin}.
 
-Some scripts are persistent (like the @filepath{def-signatures} one) and need either DrRacket to be restarted
-or simpler to click on the @italic{Unload persistent scripts} menu item.
+The user's scripts will not be modified in the process.
+There may be new bundled scripts or new versions of some bundled scripts in the new package; they won't be (re)installed by default in the user's space.
+To (re)install them, import them with the @italic{Import bundled script} menu item.
+To import all bundled scripts at once, delete or rename the user script directory and restart DrRacket;
+the directory will be recreated with all bundled scripts (then move your own scripts from the renamed folder to this new one if you had moved them).
+
+Some scripts are persistent (like the @filepath{def-signatures} one) and
+require to click on the @italic{Unload persistent scripts} menu item for the changes to take effect.
 
 @section{License}
 

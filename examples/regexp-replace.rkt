@@ -17,8 +17,9 @@
 (define f (new dialog% [label "Regexp Replace"]
                [min-width 500]))
 (define hp-help (new horizontal-panel% [parent f]))
-(new message% [parent hp-help] 
-     [label "Replace the selected text using an extended regular expression"])
+(define msg-help
+  (new message% [parent hp-help] 
+       [label "Replace the selected text using an extended regular expression"]))
 (define bt-help (new button% [parent hp-help] [label "Regexp Help"]
                      [callback (thunk* (help "Regular expressions N:Printing N:Reading"))]))
 (define templates 
@@ -67,7 +68,8 @@
 (define (cancel-pressed b ev) 
   (send f show #f)
   )
-(gui-utils:ok/cancel-buttons f ok-pressed cancel-pressed)
+(define-values (bt-ok bt-cancel)
+  (gui-utils:ok/cancel-buttons f ok-pressed cancel-pressed))
 
 ;; Performs a (extended) regexp-replace* on the selection.
 ;; The "from" and "to" patterns are asked in a dialog box.

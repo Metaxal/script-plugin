@@ -34,3 +34,5 @@ It is already packed with a number of useful such scripts:
 * **string-utils**: various string insertions in your files
 * **test-menu**: Example to show how to add and remove a menu to DrRacket
 * **test-slideshow**: Example to show how to insert slideshow images in DrRacket
+
+If you create a script that you think can be useful to others, don't hesitate to make a pull request, or just send me an email (laurent orseau gmail com).

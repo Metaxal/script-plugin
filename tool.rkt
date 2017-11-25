@@ -304,17 +304,7 @@ Scripts:
           (send-main-page #:sub "script-plugin/index.html"))
         
         (define (bug-report)
-          (send-url 
-           (string-append
-            "http://planet.racket-lang.org/trac/newticket?component="
-            (this-package-version-owner) "%2F" (this-package-version-name) 
-            "&planetversion=%28" (number->string (this-package-version-maj))
-            "+" (number->string (this-package-version-min)) "%29"
-            "&author=" (preferences:get 'drracket:email)
-            "&pltversion=" (version)
-            "&keywords=" (symbol->string (system-type 'os)) 
-            ; could also add (system-type 'machine) for more info
-            )))
+          (send-url "https://github.com/Metaxal/script-plugin/issues"))
         
         (define menu-bar (send this get-menu-bar))
         
