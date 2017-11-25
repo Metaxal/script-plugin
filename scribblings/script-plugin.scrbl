@@ -136,80 +136,82 @@ The script menu is rebuilt each time the user activates it, so that changes
 are taken into account as soon as possible.
 
 @subsection{The .rkt file}
-    This is the script file.
-    It must provide the @racket[item-callback] function,
-    as in the sample code.
-    It is meant to be executable by itself, as a normal module, to ease the testing process.
+This is the script file.
+It must provide the @racket[item-callback] function,
+as in the sample code.
+It is meant to be executable by itself, as a normal module, to ease the testing process.
 
-    @defproc[(item-callback [str string?]) (or/c string? (is-a?/c snip%) #f)]{
-    Returns the string meant to be inserted in place of the current selection,
-    or at the cursor if there is no selection.
-    If the returned value is not a @racket[string] or a @racket[snip%],
-    the selection is not modified (i.e., the file remains in a saved state if it was already saved).
-    }
-
-
-
-    This function signature can also be extended by (optional or mandatory) special keyword arguments:
-    @;(the exact signature is determined with @racket[procedure-keywords]):
-    @itemlist[
-               @item{@racket[#:file : (or/c path? #f)]
-
-                      The path to the current file of the definition window, or @racket[#f]
-                      if there is no such file (i.e., unsaved editor).
-
-                      @bold{Example:}
-                      @(racketblock
-                        (define (item-callback str #:file f)
-                          (string-append "(in " (if f (path->string f) "no-file") ": " str))
-                        )
-
-                      See also: @racket[file-name-from-path], @racket[filename-extension],
-                      @racket[path->string], @racket[split-path].
-                      }
-
-               @item{@racket[#:definitions : text%]
-
-                      The @racket[text%] editor of the current definition window.
-
-                      @bold{Example:} @example-link{insert-lambda.rkt}
-                      @;(codeblock/file (example-file "insert-lambda.rkt"))
-
-                      See @racket[text%] for more details.
-                      }
-
-               @item{@racket[#:interactions : text%]
-
-                      The @racket[text%] editor of the current interaction window.
-                      Similar to @racket[#:definitions].
-                      }
-
-               @item{@racket[#:editor : text%]
-
-                      The @racket[text%] current editor, either the definition or the interaction editor.
-                      Similar to @racket[#:definitions].
-                      }
-
-               @item{@racket[#:frame : drracket:unit:frame<%>]
-
-                      DrRacket's frame.
-                      For advanced scripting.
-
-                      @bold{Example:}
-                      @(racketblock
-                        (define (item-callback str #:frame fr)
-                          (send fr create-new-tab)
-                          #f)
-                        )
-                      }
-
-              ]
+@defproc[#:link-target? #f
+ (item-callback [str string?])
+ (or/c string? (is-a?/c snip%) #f)]{
+ Returns the string meant to be inserted in place of the current selection,
+ or at the cursor if there is no selection.
+ If the returned value is not a @racket[string] or a @racket[snip%],
+ the selection is not modified (i.e., the file remains in a saved state if it was already saved).
+}
 
 
 
-    The name of the function can also be changed,
-    but this requires to change it also in the @racket[functions]
-    entry of the .rktd file (see below), and the function must be @racket[provide]d.
+This function signature can also be extended by (optional or mandatory) special keyword arguments:
+@;(the exact signature is determined with @racket[procedure-keywords]):
+@itemlist[
+ @item{@racket[#:file : (or/c path? #f)]
+
+  The path to the current file of the definition window, or @racket[#f]
+  if there is no such file (i.e., unsaved editor).
+
+  @bold{Example:}
+  @(racketblock
+    (define (item-callback str #:file f)
+      (string-append "(in " (if f (path->string f) "no-file") ": " str))
+    )
+
+  See also: @racket[file-name-from-path], @racket[filename-extension],
+  @racket[path->string], @racket[split-path].
+ }
+
+ @item{@racket[#:definitions : text%]
+
+  The @racket[text%] editor of the current definition window.
+
+  @bold{Example:} @example-link{insert-lambda.rkt}
+  @;(codeblock/file (example-file "insert-lambda.rkt"))
+
+  See @racket[text%] for more details.
+ }
+
+ @item{@racket[#:interactions : text%]
+
+  The @racket[text%] editor of the current interaction window.
+  Similar to @racket[#:definitions].
+ }
+
+ @item{@racket[#:editor : text%]
+
+  The @racket[text%] current editor, either the definition or the interaction editor.
+  Similar to @racket[#:definitions].
+ }
+
+ @item{@racket[#:frame : drracket:unit:frame<%>]
+
+  DrRacket's frame.
+  For advanced scripting.
+
+  @bold{Example:}
+  @(racketblock
+    (define (item-callback str #:frame fr)
+      (send fr create-new-tab)
+      #f)
+    )
+ }
+
+ ]
+
+
+
+The name of the function can also be changed,
+but this requires to change it also in the @racket[functions]
+entry of the .rktd file (see below), and the function must be @racket[provide]d.
 
 @subsection{The .rktd file}
 
