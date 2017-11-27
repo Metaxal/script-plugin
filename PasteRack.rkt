@@ -5,6 +5,6 @@
 (provide item-callback)
 (define (item-callback str)
   (send-url "http://pasterack.org/")
-  str)
+  #f)
 
 ;; See the manual in the Script/Help menu for more information.
