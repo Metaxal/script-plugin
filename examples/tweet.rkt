@@ -1,6 +1,28 @@
 #lang racket/base
 (require racket/list)
-; Sample identity function:
+; HOW TO USE
+; to use this you need to
+;
+; 1. go to https://apps.twitter.com
+; 2. create a new app (profile for your app)
+; 3. create a new token
+; 4. set the environment variables (not sure how to automate this bit)
+;
+; for now I have short script to set the respective environment variables
+; 
+; Consumer Key (API Key)	
+; Consumer Secret (API Secret)	
+; Access Token	
+; Access Token Secret
+;
+; please fill in your twitter credentials to activate this script
+;
+(putenv "OAUTH_CONS_KEY" "")
+(putenv "CONS_SEC" "")
+(putenv "OAUTH_TOKEN" "")
+(putenv "OAUTH_TOKEN_SEC" "")
+
+;  identity function:
 ;; string? -> (or/c string? #f)
 (provide item-callback)
 
