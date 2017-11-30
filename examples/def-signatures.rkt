@@ -452,12 +452,13 @@ Do you want to recreate the index?"
              [fr (frame-message "Making index" "Constructing documentation index for the first time.\nPlease wait..." #t)]
              [read-scrbl-dir 
               (λ(dir)
-                (for ([f (in-directory dir)])
-                  (when (equal? (filename-extension f) #"scrbl")
-                    ;(printf "Scribble file: ~a ~n" f)
-                    (with-parse-handler f
-                      (index-defs dic f)
-                      ))))])
+                (when (directory-exists? dir)
+                  (for ([f (in-directory dir)])
+                    (when (equal? (filename-extension f) #"scrbl")
+                      ;(printf "Scribble file: ~a ~n" f)
+                      (with-parse-handler f
+                                          (index-defs dic f)
+                                          )))))])
         
         #;(for ([col scribblings-dirs])
           (let ([dir (scribblings-path col)])
@@ -466,7 +467,11 @@ Do you want to recreate the index?"
                 (printf "Warning: directory ~a not found." dir))))
         
         ; read all scrbl files in all collections:
-        (read-scrbl-dir (find-collects-dir))
+        (for-each read-scrbl-dir
+                  (list (find-collects-dir)
+                        (find-user-collects-dir)
+                        (find-pkgs-dir)
+                        (find-user-pkgs-dir)))
         
         (for ([f rkt-files])
           (with-parse-handler f
@@ -510,7 +515,9 @@ Do you want to recreate the index?"
     [(list (? keyword? kw) name cont val)  (format "  ~v: ~v = ~v" name cont val)]
     ['...                                  #f]
     ['...+                                 #f]
-    ))     
+    ))
+
+(define NO_ENTRY_FOUND "No entry found")
 
 ;; Returns the list of signature in line-splitted string-format.
 ;; -> (list def-strings)
@@ -566,7 +573,7 @@ Do you want to recreate the index?"
            (list (format "~v : ~v" id cont))]
           [else (list (format "Unknown parsed form: ~a" entry))]
           ))
-      '(("No entry found"))))
+      `((,NO_ENTRY_FOUND))))
 
 ; The definition index. Since the script is persitent, it is loaded only once
 (define def-index (create-index))
@@ -773,11 +780,18 @@ Do you want to recreate the index?"
 (send f show #t)
 ;|#
 
-
-; for tests:
-#;(with-output-to-file list->string print error make-module-evaluator make-provide-transformer list->string open-input-output-file	 regexp-replace
+; These tests are likely to fail within an automated tester if the docs are not installed, hence they are commented out.
+#;
+(module+ test
+  (require rackunit)
+  
+  (define defs
+    '(with-output-to-file list->string print error make-module-evaluator make-provide-transformer list->string open-input-output-file	 regexp-replace
     
-    button% set-label class get-top-level-window min-height refresh on-move get-x get-cursor focus
-    ; framework (complicated ones!):
-    finder:common-put-file  preferences:set-default
-    )
+       button% set-label class get-top-level-window min-height refresh on-move get-x get-cursor focus
+       ; framework (complicated ones!):
+       finder:common-put-file  preferences:set-default
+       ))
+  (for ([d (in-list defs)])
+    (check-not-false (dict-ref def-index d #f)))
+  )
