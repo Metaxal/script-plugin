@@ -33,7 +33,7 @@
 
 ;; See the manual in the Script/Help menu for more information.
 
-(provide tweet!)
+;(provide tweet!)
 (require (only-in racket/random crypto-random-bytes)
          json
          net/url
