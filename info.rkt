@@ -17,7 +17,8 @@
     "scribble-lib"
     ))
 
-(define build-deps '("planet-doc"))
+(define build-deps '("planet-doc"
+                     "draw-doc"))
 
 (define name                 "User Script Plugin")
 (define drracket-tools       '(("tool.rkt")))
