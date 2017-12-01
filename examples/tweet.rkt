@@ -32,6 +32,11 @@
   #f)
 
 ;; See the manual in the Script/Help menu for more information.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Code below by David Van Horn  http://ter.ps/dvanhorn                   ;
+; used with permission                                                   ;
+; https://gist.github.com/dvanhorn/815bdda5cfcdee18d480cb6a5d1119f3      ;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;(provide tweet!)
 (require (only-in racket/random crypto-random-bytes)
