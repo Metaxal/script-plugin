@@ -83,30 +83,17 @@ The code is a mess, and I did not bother much to make it better...
 
 ;;; Global variables that the user might want to change
 
+(define debug? #f)
+(define (set!-debug? d)
+  (set! debug? d))
+
 (define text-size 
-  ; global:
-  ;8)
   ; relative to the user's preferences:
   (let ([size (preferences:get 'framework:standard-style-list:font-size)])
     (- (cond [(number? size) size]
              [(vector? size) (vector-ref size 1)]
              [else 12])
        2)))
-
-;; OBSOLETE (now reads all scrbl files)
-;; List of dirs for which to parse the scribble files.
-;; Put the most common ones at the end, so that their definitions appear at the top.
-(define scribblings-dirs
-  '("raco"
-    "framework"
-    "slideshow"
-    "scribble"
-    "gui"
-    "draw"
-    "reference"
-    ))
-; + collects/framework
-; TODO: add ../syntax/scribblings and ../syntax/scribblings/parse
 
 (define srfi-files
   '("srfi-13.html" 
@@ -162,7 +149,7 @@ The code is a mess, and I did not bother much to make it better...
 (define (index-defs dic file)
   (define f-in (open-input-file file))
   
-  ;(printf "File ~a\n" file)
+  (when debug? (printf "File ~a\n" file))
   (define all 
     (read-scrbl f-in file ))
   
@@ -272,104 +259,6 @@ The code is a mess, and I did not bother much to make it better...
   (parse-all all)
   )
 
-
-#|
-(define h (make-hash))
-(define f
-   (open-input-file
-    "/usr/lib/racket-full-5.3.0.2/collects/framework/preferences.rkt"))
-(define all (read-rkt f))
-(parse-list h all)
-;(dict-ref h 'finder:common-put-file)
-(dict-ref h 'preferences:set-default)
-;|#
-
-;=====================;
-;=== Parsing SRFIs ===;
-;=====================;
-
-#| 
-;; note for myself: see also parse-srfi.rkt in misc dir.
-
-;;; There are problems with xml parsing of srfi files:
-;;; non consistent encoding (us-ascii <-> utf-8 problems), non-consistent html (but the xml parser is good)
-
-(define-match-expander x-elt 
-  (syntax-rules ()
-    [(_ class attrs ctnt)
-     (struct x:element (_start _stop class attrs ctnt))]))
-
-(define-match-expander x-attr 
-  (syntax-rules ()
-    [(_ class name)
-     (struct x:attribute (_start _stop class name))]))
-
-(define-match-expander x-data
-  (syntax-rules ()
-    [(_ str)
-     (struct x:pcdata (_start _stop str))]))
-
-(define-match-expander x-entity
-  (syntax-rules ()
-    [(_ str)
-     (struct x:entity (_start _stop str))]))
-
-(define (content->string x)
-  (define ctt->str
-    (match-lambda
-      [(? list? r)
-       (string-append* (map ctt->str r))]
-      [(x-data str)
-       str]
-      [(x-entity 'nbsp)
-       " "]
-      [(x-entity (? string? str))
-       str]
-      [(x-elt 'sub _a _b)
-       ""]
-      ))
-  (string-trim-both (ctt->str x)))
-
-;; h: hash?
-;; x: xml?
-(define (parse-srfi dic x)
-  (define (parse x)
-    (match x
-      [(? list? r)
-       (for-each parse r)]
-      [(x-elt 'dt
-              _dt-class
-              (list
-               _a ...
-               (x-elt 'code 
-                      (list (x-attr 'class "proc-def"))
-                      name)
-               _b ...
-               (x-elt 'var
-                      (list)
-                      proto)
-               _rest ...))
-       (let ([id-str (content->string name)])
-         (add-dict-entry 
-          dic 
-          (string->symbol id-str)
-          (list 'srfi id-str (content->string proto))))]
-      [(x-elt _name _attrs ctnt)
-       (parse ctnt)]
-      [else (void)]
-      ))
-  (parse x))
-
-(define (parse-srfi-file dic f)
-  (parse-srfi dic
-              (read-html-as-xml 
-               (open-input-file  f))))
-|#
-
-;;; text-parsing is simpler but less robust to end of lines
-;;; or if multiple defs per line.
-;;; Plus I had much less trouble with it than with xml parsing
-
 (define replace-dict
   '(("&nbsp;"  . " ")
     ("&gt;"    . ">")
@@ -419,7 +308,8 @@ The code is a mess, and I did not bother much to make it better...
 (make-directory* (path-only idx-file))
 
 (define-syntax-rule (with-parse-handler file body ...)
-  (with-handlers ([exn:fail? (λ _ (printf "Warning: Could not parse file ~a~n" file))])
+  (with-handlers ([exn:fail? (λ _ (when debug?
+                                    (printf "Warning: Could not parse file ~a~n" file)))])
     body ...))
 
 ;(define-runtime-path this-file "def-signatures.rkt")
@@ -455,16 +345,9 @@ Do you want to recreate the index?"
                 (when (directory-exists? dir)
                   (for ([f (in-directory dir)])
                     (when (equal? (filename-extension f) #"scrbl")
-                      ;(printf "Scribble file: ~a ~n" f)
                       (with-parse-handler f
                                           (index-defs dic f)
                                           )))))])
-        
-        #;(for ([col scribblings-dirs])
-          (let ([dir (scribblings-path col)])
-            (if (directory-exists? dir)
-                (read-scrbl-dir dir)
-                (printf "Warning: directory ~a not found." dir))))
         
         ; read all scrbl files in all collections:
         (for-each read-scrbl-dir
@@ -483,7 +366,7 @@ Do you want to recreate the index?"
             (with-parse-handler f
               (parse-srfi-file dic f))))
         
-        (printf "~a identifiers found\n" (dict-count dic))
+        (when debug? (printf "~a identifiers found\n" (dict-count dic)))
 
         ; write the generated dict to a file for speed up on next loadings:        
         (with-output-to-file idx-file
@@ -680,6 +563,7 @@ Do you want to recreate the index?"
                     [alignment '(left top)]))
     
     (new button% [parent hp][label "X"]
+         [min-width 10] [min-height 10]
          [horiz-margin 0] [vert-margin 0]
          [stretchable-width #f] [stretchable-height #f]
          [callback (λ _ (send (this-frame) show #f))])
@@ -773,17 +657,12 @@ Do you want to recreate the index?"
           )))
   #f)
 
-
-#| Tests
-(define f (new tooltip-frame% 
-               [text (def-name->text 'with-output-to-file)]))
-(send f show #t)
-;|#
-
 ; These tests are likely to fail within an automated tester if the docs are not installed, hence they are commented out.
 #;
 (module+ test
   (require rackunit)
+
+  (set!-debug? #t)
   
   (define defs
     '(with-output-to-file list->string print error make-module-evaluator make-provide-transformer list->string open-input-output-file	 regexp-replace
