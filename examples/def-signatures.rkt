@@ -1,6 +1,7 @@
 #lang racket/gui
 (require (prefix-in scrbl: scribble/reader)
          racket/runtime-path
+         mrlib/close-icon
          (for-syntax racket/base)
          framework
                   
@@ -562,10 +563,7 @@ Do you want to recreate the index?"
     (define hp (new horizontal-panel% [parent this]
                     [alignment '(left top)]))
     
-    (new button% [parent hp][label "X"]
-         [min-width 10] [min-height 10]
-         [horiz-margin 0] [vert-margin 0]
-         [stretchable-width #f] [stretchable-height #f]
+    (new close-icon% [parent hp]
          [callback (λ _ (send (this-frame) show #f))])
     
     (define (this-frame) this)
