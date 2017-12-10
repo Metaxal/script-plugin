@@ -23,7 +23,7 @@
 (define name                 "User Script Plugin")
 (define drracket-tools       '(("tool.rkt")))
 (define drracket-tool-names  '("Script Plugin"))
-(define drracket-tool-icons  '(#f))
+(define drracket-tool-icons  '("logo.png"))
 
 (define scribblings '(("scribblings/script-plugin.scrbl" () (tool) "script-plugin")))
 
