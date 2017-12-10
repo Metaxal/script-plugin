@@ -129,14 +129,16 @@ The code is a mess, and I did not bother much to make it better...
   (scrbl:read-inside in))
   ;(syntax->datum (scrbl:read-syntax-inside file in)))
 
-(define (read-rkt in)
-  (void (read-language in)) ; don't care about the #lang line
-  ; no need to reverse since we don't care about the top level order:
-  (let loop ([l '()])
-    (define s (scrbl:read in))
-    (if (eof-object? s)
-        l
-        (loop (cons s l)))))
+(define (read-rkt file)
+  (with-input-from-file file
+    (λ()
+      (void (read-language)) ; don't care about the #lang line
+      ; no need to reverse since we don't care about the top level order:
+      (let loop ([l '()])
+        (define s (scrbl:read))
+        (if (eof-object? s)
+            l
+            (loop (cons s l)))))))
   
 
 (define (add-dict-entry dic key l)
@@ -148,14 +150,10 @@ The code is a mess, and I did not bother much to make it better...
 
 ;; Loads all the defproc forms from a given file into the dictionary.
 (define (index-defs dic file)
-  (define f-in (open-input-file file))
-  
   (when debug? (printf "File ~a\n" file))
   (define all 
-    (read-scrbl f-in file ))
-  
-  (close-input-port f-in)
-  
+    (with-input-from-file file
+      (λ()(read-scrbl (current-input-port) file))))
   (parse-list dic all))
 
 ;; takes a list of x-exprs, parses it, and add found form to the dictionary
@@ -359,7 +357,7 @@ Do you want to recreate the index?"
         
         (for ([f rkt-files])
           (with-parse-handler f
-            (parse-list dic (read-rkt (open-input-file f)))))
+            (parse-list dic (read-rkt f))))
         
         ; constructing index for srfi files:
         (for ([f srfi-files])
