@@ -1,8 +1,0 @@
-((label . "String Utils")
- (functions . ((item-callback "Signatures")))
- (shortcut . #\$) ;f1)
- (shortcut-prefix . (ctl))
- (help-string . "Help String")
- (output-to . selection)
- (persistent . #t)
- (active . #t))

@@ -1,7 +1,6 @@
 #lang scribble/manual
 
-@(require planet/scribble
-          racket/file
+@(require racket/file
           racket/path
           racket/runtime-path
           (for-syntax racket/base) ; for build-path in runtime-path
@@ -50,18 +49,15 @@ like DrRacket's frame and the definition or interaction editor.
 @section{Some demonstration videos}
 
 @(itemlist
-  @item{@hyperlink["https://www.youtube.com/watch?v=KJjVREsgnvA"]{Tab indent plugin:} Word alignment}
-  @item{@hyperlink["https://www.youtube.com/watch?v=qgjAZd4eBBY"]{Abstract variable plugin:} Turn an expression into a definition}
+  @item{@hyperlink["https://www.youtube.com/watch?v=KJjVREsgnvA"]{Tab indent script:} Word alignment}
+  @item{@hyperlink["https://www.youtube.com/watch?v=qgjAZd4eBBY"]{Abstract variable script:} Turn an expression into a definition}
   )
 
 @section{Installation}
 
-To install, either look for @tt{script-plugin} in the DrRacket menu @italic{File/Package Manager},
-or run the raco command @commandline{raco pkg install script-plugin}.
-
-A warning about @racket{item-callback} may appear, you can safely ignore it.
-
-(If the documentation does not build up correctly, run @tt{raco pkg setup @literal|{--}|doc-index}.)
+To install, either look for @tt{script-plugin} in the DrRacket menu @italic{File>Package Manager},
+or run the raco command:
+@commandline{raco pkg install script-plugin}
 
 You need to restart DrRacket. Now you should have a new item @italic{Scripts} in the menu bar.
 
@@ -96,64 +92,81 @@ it is possible to cycle among all the corresponding words.}
  @item{...}
  ]
 
-You can easily modify all these scripts through @italic{Scripts/Manage scripts/Open script} and @italic{Open script properties}.
+You can easily modify all these scripts through @italic{Scripts>Manage scripts>Open script} and @italic{Open script properties}.
 
 You made a cool script that you'd like to share? Why not sending me a pull request on @hyperlink["https://github.com/Metaxal/script-plugin"]{github}, or if you don't know how that works just send me your files by email and I'll probably include them!
 
 
 @section{Make your own script: First simple example}
 
-Click on the @italic{Scripts/Manage scripts/New script...} menu item, and enter @italic{Reverse} for the script name.
-This creates and opens the files reverse.rkt and reverse.rktd in the script directory.
+Click on the @italic{Scripts>Manage scripts>New script...} menu item, and enter @italic{Reverse} for the script name.
+This creates and opens the file reverse.rkt in the user's scripts directory.
 Also, a new item automatically appears in the @italic{Scripts} menu.
 
-In the .rkt file that just opened in DrRacket, modify the @racket[item-callback] function to the following:
+In the .rkt file that just opened in DrRacket, modify the @racket[define-script] definition to the following:
 @(racketblock
-  (define (item-callback str)
-    (list->string (reverse (string->list str))))
-  )
+  (define-script reverse
+    #:label "Reverse"
+    (λ(selection)
+      (list->string (reverse (string->list selection))))))
 and save the file.
-(Note: if you changed the properties file, you will need to reload the menu by clicking on
-@italic{Scripts/Manage scripts/Reload scripts menu}).
+(Note: if you later change the @racket[label] property, you will need to reload the menu by clicking on
+@italic{Scripts>Manage scripts>Reload scripts menu} after saving the file).
 
-Then go to a new tab, type some text, select it, and click on @italic{Scripts/Reverse}, and voilà!
+Then go to a new tab, type some text, select it, and click on @italic{Scripts>Reverse}, and voilà!
 
-@section{Description}
+@section{Into more details}
 
 The plugin adds a @italic{Scripts} menu to the main window.
-This menu has several items, followed by the (initially empty) list of active
-scripts.
+This menu has several items, followed by the list of scripts.
 
+The @italic{New script} item asks for a script name and creates a corresponding .rkt file
+in the user's script directory, and opens it in DrRacket.
 
-The @italic{New script} item asks for a script name and creates 2 files:
-@itemlist[
-  @item{a .rkt file, the script itself (filled with a default script template),}
-  @item{a .rktd file, the metadata of the script with the default values.}
-]
-These two files are automatically opened in DrRacket for edition.
+Each scripts is defined with @racket[define-script], which among other things adds an entry in DrRacket's Scripts menu.
+A single script file can contain several calls to @racket[define-script].
 
-The script menu is rebuilt each time the user activates it, so that changes
-are taken into account as soon as possible.
+By default, the new script is reduced to its simplest form.
+However, scripts can be extended with several optional @italic{properties} and @italic{arguments}.
+When all of them are used, a script can look like this:
+@#reader scribble/comment-reader
+(racketblock
+  (define-script a-complete-script
+    ;; Properties:
+    #:label "Full script"
+    #:help-string "A complete script showing all properties and arguments"
+    #:menu-path ("Submenu" "Subsubmenu")
+    #:shortcut #\a
+    #:shortcut-prefix (ctl shift)
+    #:output-to selection
+    #:persistent
+    ;; Procedure with its arguments:
+    (λ(selection #:editor ed #:frame fr #:interactions ints #:file f)
+      "Hello world!")))
 
-@subsection{The .rkt file}
-This is the script file.
-It must provide the @racket[item-callback] function,
-as in the sample code.
-It is meant to be executable by itself, as a normal module, to ease the testing process.
+Below we detail first the procedure and its arguments and then the script's properties.
 
-@defproc[#:link-target? #f
- (item-callback [str string?])
- (or/c string? (is-a?/c snip%) #f)]{
- Returns the string meant to be inserted in place of the current selection,
- or at the cursor if there is no selection.
- If the returned value is not a @racket[string] or a @racket[snip%],
- the selection is not modified (i.e., the file remains in a saved state if it was already saved).
-}
+@subsection{The script's procedure}
 
+When clicking on a script label in the Scripts menu in DrRacket,
+its corresponding procedure is called.
+The procedure takes at least the @racket[selection] argument, which is the string that is currently
+selected in the current editor.
+The procedure must returns either @racket[#f] or a @racket[string?].
+If it returns @racket[#f], no change is applied to the current editor, but if it returns a string,
+then the current selection is replace with the return value.
 
+If some of the above keywords are specified in the procedure, the Script Plugin detects them and passes the
+corresponding values, so the procedure can take various forms:
+@(racketblock
+  (λ(selection)....)
+  (λ(selection #:frame fr)....)
+  (λ(selection #:file f)....)
+  (λ(selection #:editor ed #:file f)....)
+  ....
+  )
 
-This function signature can also be extended by (optional or mandatory) special keyword arguments:
-@;(the exact signature is determined with @racket[procedure-keywords]):
+Here is the meaning of the keyword arguments:
 @itemlist[
  @item{@racket[#:file : (or/c path? #f)]
 
@@ -162,9 +175,12 @@ This function signature can also be extended by (optional or mandatory) special 
 
   @bold{Example:}
   @(racketblock
-    (define (item-callback str #:file f)
-      (string-append "(in " (if f (path->string f) "no-file") ": " str))
-    )
+    (define-script current-file-example
+      #:label "Current file example"
+      #:output-to message-box
+      (λ(selection #:file f)
+        (string-append "File: " (if f (path->string f) "no-file")
+                       "\nSelection: " selection))))
 
   See also: @racket[file-name-from-path], @racket[filename-extension],
   @racket[path->string], @racket[split-path].
@@ -173,10 +189,6 @@ This function signature can also be extended by (optional or mandatory) special 
  @item{@racket[#:definitions : text%]
 
   The @racket[text%] editor of the current definition window.
-
-  @bold{Example:} @example-link{insert-lambda.rkt}
-  @;(codeblock/file (example-file "insert-lambda.rkt"))
-
   See @racket[text%] for more details.
  }
 
@@ -199,128 +211,87 @@ This function signature can also be extended by (optional or mandatory) special 
 
   @bold{Example:}
   @(racketblock
-    (define (item-callback str #:frame fr)
-      (send fr create-new-tab)
-      #f)
-    )
- }
+    (require racket/class)
+    (define-script number-tabs
+      #:label "Number of tabs"
+      #:output-to message-box
+      (λ(selection #:frame fr)
+        (format "Number of tabs in DrRacket: ~a"
+                (send fr get-tab-count)))))
+ }]
 
- ]
+@subsection{The script's properties}
 
+The properties are mere data and cannot contain expressions.
 
-
-The name of the function can also be changed,
-but this requires to change it also in the @racket[functions]
-entry of the .rktd file (see below), and the function must be @racket[provide]d.
-
-@subsection{The .rktd file}
-
-This is the metadata file.
-It contains an association list dictionary that defines the configuration of the script.
-
-@bold{Note:} @italic{This file being a data file, it should almost never contain quotes. The quotes in the following definitions must thus not appear in the file.}
-
-Most entries (@racket[label], @racket[shortcut], @racket[shortcut-prefix], @racket[help-string]) are the same as
+Most properties (@racket[#:label], @racket[#:shortcut], @racket[#:shortcut-prefix], @racket[#:help-string]) are the same as
 for the @racket[menu-item%] constructor.
 In particular, a keyboard shortcut can be assigned to an item.
 
-Additionally, if the @racket[label] is @racket['separator], then a separator is added in the menu.
+If a property does not appear in the dictionary, it takes its default value.
 
-If an entry does not appear in the dictionary, it takes its default value.
-
-There are some additional entries:
+There are some additional properties:
 @itemlist[
-          @item{@racket[functions : (or/c symbol? (listof (list/c symbol? string?))) = item-callback]
+ @item{@racket[#:menu-path : (listof string?) = ()]
+  This is the list of submenus in which the script's label will be placed,
+  under the Script menu.
 
-                 If a symbol, it is the name of the function to call (which must be provided),
-                 and it must follow @racket[item-callback]'s signature (with potential extensions).
+  Note that different scripts in different files can share the same submenus.
 
-                 If a list, each symbol is the name of a function, and each string is a label for that function.
-                 In this case, a sub-menu holding all these functions is created,
-                 and the @racket[label] option is used as the parent menu name.
+ }
+ @item{@racket[#:output-to : (one-of/c selection new-tab message-box clipboard #f) = selection]
 
-                 Note that a sub-menu can be shared among scripts.
+  If @racket[selection], the output of the procedure replaces the
+  selection in the current editor (definitions or interactions),
+  or insert the output at the cursor if there is no selection.
+  If @racket[new-tab], the return value is written in a new tab.
+  If @racket[message-box], the return value (if a string) is displayed in a @racket[message-box].
+  If @racket[clipboard], the return value (if a string) is copied to the clipboard.
+  If @racket[#f], the return value is not used.
+ }
+ @item{@racket[#:persistent]
 
-                 @bold{Example:}
+  If they keyword @racket[#:persistent] is @emph{not} provided,
+  each invocation of the script is done in a fresh namespace
+  that is discarded when the procedure finishes.
 
-                 The following .rktd file creates a sub-menu named @italic{My Functions} (with the letter F for keyboard access),
-                 containing 3 items, one for each function and its associated letter-accessor.
-                 @(codeblock/example-file "my-functions.rktd")
+  But if @racket[#:persistent] is provided, a fresh namespace is created only
+  the first time it is invoked, and the same namespace is re-used for the subsequent invocations.
+  Note that a single namespace is kept per file, so if different scripts in the same file
+  are marked as persistent, they will all share the same namespace (and, thus, variables).
+  Also note that a script marked as non-persistent will not share the same namespace as
+  the other scripts of the same file marked as persistent.
 
-                 And the associated .rkt example file:
-                 @(codeblock/example-file "my-functions.rkt")
+  Consider the following script:
+  @(racketblock
+    (define count 0)
 
-                 @bold{Note:} The @racket[label] can also be @racket['separator].
+    (define-script persistent-counter
+      #:label "Persistent counter"
+      #:persistent
+      #:output-to message-box
+      (λ(selection)
+        (set! count (+ count 1))
+        (number->string count))))
 
-                 }
-           @item{@racket[output-to : (one-of/c 'selection 'new-tab 'message-box #f) = 'selection]
+  If the script is persistent, the counter increases at each invocation of the script via the menu,
+  whereas it always displays 1 if the script is not persistent.
 
-                  If @racket['selection], the output of the @racket[item-callback] function replaces the
-                  selection in the current tab, or insert at the cursor if there is no
-                  selection.
-                  If @racket['new-tab], a new tab is created and the output of the function is written to it.
-                  If @racket['message-box], the output is displayed in a @racket[message-box].
-                  If @racket[#f], no output is generated.
-                  }
-           @item{@racket[persistent : boolean? = #f]
+  Note: Persistent scripts can be "unloaded" by clicking on the @italic{Scripts>Manage scripts>Unload persistent scripts} menu item.
+  In the previous example, this will reset the counter.
 
-                  If not persistent, each time a script is invoked, it is done so in a fresh namespace
-                  (so that less memory is used, at the expense of a slight time overhead).
-                  In particular, all variables are reset to their initial state.
+  See a more detailed example in @example-link{persistent-counter.rkt}.
+ }]
 
-                  On the contrary, if a script is persistent, a fresh namespace is created only
-                  the first time it is invoked, and the same namespace is re-used for the subsequent invocations.
-
-                  Consider the following script:
-                  @codeblock|{#lang racket/base
-                  (define count 0)
-                  (define (item-callback str)
-                    (set! count (+ 1 count))
-                    (number->string count))
-                   }|
-
-                  If the script is persistent, the counter increases at each invocation of the script via the menu,
-                  whereas it always displays 1 if the script is not persistent.
-
-                  Note: Persistent scripts can be "unloaded" by clicking on the @italic{Scripts/Manage scripts/Unload persistent scripts} menu item.
-                  In the previous example, this will reset the counter.
-                  }
-           @item{@racket[active : boolean? = #t]
-
-                  If set to @racket[#f], no menu item is generated for this dictionary.}
-
- ]
-
-Finally, one .rktd file can contain several such dictionaries (one after the other),
-which allows for multiple sub-menus and menu items and in a single script.
-This would have roughly the same effect as splitting such a script into several scripts,
-each one with its own .rktd file and its single dictionary.
-
-If any change is made to a .rktd file, the Scripts menu will probably need to be reloaded:
-Click on @italic{Scripts/Manage scripts/Reload scripts menu}.
+If changes are made to these properties, the Scripts menu will probably need to be reloaded
+by clicking on @italic{Scripts>Manage scripts>Reload scripts menu}.
 
 @section{Scripts directory}
-
-@;{
-There are several other examples in the @filepath{examples} directory.
-To use an example, just copy both the .rkt and .rktd files of the same name
-from the @filepath{examples} directory to the user's script directory (see below).
-It should then automatically appear in the @italic{Scripts} menu.
-
-To find the @filepath{examples} directory, evaluate (once the plugin is installed):
-@(racketblock
-  (require racket planet/resolver)
-  (build-path (path-only
-               (resolve-planet-path
-                '(planet orseau/script-plugin/tool)))
-              "examples")
-  )
-}
 
 The default location of the user's scripts is in a sub-folder of
 @racket[(find-system-path 'pref-dir)].
 The directory of the user's scripts can be changed through DrRacket's preferences
-(in @italic{Edit/Preferences/Scripts}).
+(in @italic{Edit>Preferences>Scripts}).
 @bold{Important:} The user's script directory must have write-access for the user
 (which should be the case for the default settings).
 
@@ -335,7 +306,7 @@ just delete the user script directory (itself, not only its contents) and restar
 @section{Updating the Script Plugin package}
 
 To update the Script Plugin once already installed,
-either do so through the @italic{File/Package Manager} menu in DrRacket,
+either do so through the @italic{File>Package Manager} menu in DrRacket,
 or run @tt{raco pkg update script-plugin}.
 
 The user's scripts will not be modified in the process.

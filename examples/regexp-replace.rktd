@@ -1,8 +1,0 @@
-((label . "String Utils")
- (functions . ((item-callback "Regexp Replace")))
- (shortcut . #\h) ;f3)
- (shortcut-prefix . (ctl))
- (help-string . "Help String")
- (output-to . selection)
- (persistent . #t)
- (active . #t))

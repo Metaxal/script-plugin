@@ -8,7 +8,6 @@
     "gui-lib"
     "html-lib"
     "net-lib"
-    "planet-lib"
     "slideshow-lib"
     "srfi-lite-lib"
     "gui-doc"
@@ -17,10 +16,9 @@
     "scribble-lib"
     ))
 
-(define build-deps '("planet-doc"
-                     "draw-doc"))
+(define build-deps '("draw-doc"))
 
-(define name                 "User Script Plugin")
+(define name                 "Script Plugin")
 (define drracket-tools       '(("tool.rkt")))
 (define drracket-tool-names  '("Script Plugin"))
 (define drracket-tool-icons  '(#f))

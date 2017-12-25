@@ -1,8 +1,0 @@
-((label . "String Utils")
- (functions . ((dabbrev "Dynamic completion")))
- (shortcut . #\t)
- (shortcut-prefix . (ctl shift))
- (help-string . "Help String")
- (output-to . selection)
- (persistent . #f)
- (active . #t))

@@ -1,8 +1,0 @@
-((label . "Provided by")
- (functions . item-callback)
- (shortcut . #f)
- (shortcut-prefix . #f)
- (help-string . "Help String")
- (output-to . selection)
- (persistent . #t)
- (active . #t))

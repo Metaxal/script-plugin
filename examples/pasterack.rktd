@@ -1,8 +1,0 @@
-((label . "PasteRack")
- (functions . item-callback)
- (shortcut . #f)
- (shortcut-prefix . #f)
- (help-string . "Opens 'PasteRack' An evaluating pastebin for Racket.")
- (output-to . selection)
- (persistent . #f)
- (active . #t))
