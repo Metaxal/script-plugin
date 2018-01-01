@@ -1,13 +1,17 @@
+**The Script Plugin is now superseded by [Quickscript](https://github.com/Metaxal/quickscript).**
+
+# Script-Plugin: A script system for DrRacket
+
 The script plugin is a tool for DrRacket which allows to quickly and easily extend DrRacket features, without having to restart it.
 The scripts are automatically accessible from a new menu in DrRacket.
 
-# Installation
+## 1. Installation
 
 ```
 raco pkg install script-plugin
 ```
 
-# Usage
+## 2. Usage
 See the [docs](http://pkg-build.racket-lang.org/doc/script-plugin/index.html) for how to make a script.
 
 It is already packed with a number of useful such scripts:
