@@ -15,6 +15,7 @@
     "racket-doc"
     "racket-index"
     "scribble-lib"
+    "web-server-lib"
     ))
 
 (define build-deps '("planet-doc"
@@ -29,6 +30,10 @@
 
 (define compile-omit-paths
   '("examples/color-theme.rkt"))
+
+(define test-omit-paths
+  '("examples/def-signatures.rkt"
+    "main.rkt"))
 
 (define blurb
   '("Easily make plugin scripts for DrRacket."

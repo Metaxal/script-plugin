@@ -17,10 +17,11 @@
 ;
 ; please fill in your twitter credentials to activate this script
 ;
-(putenv "OAUTH_CONS_KEY" "")
-(putenv "CONS_SEC" "")
-(putenv "OAUTH_TOKEN" "")
-(putenv "OAUTH_TOKEN_SEC" "")
+(void
+ (putenv "OAUTH_CONS_KEY" "")
+ (putenv "CONS_SEC" "")
+ (putenv "OAUTH_TOKEN" "")
+ (putenv "OAUTH_TOKEN_SEC" ""))
 
 ;  identity function:
 ;; string? -> (or/c string? #f)
