@@ -37,7 +37,7 @@
 
 @section{Introduction}
 
-The Script Plugin is now superseded by @hyperlink["https://docs.racket-lang.org/quickscript/index.html?q=packages"]{Quickscript}.
+The Script Plugin is now superseded by @hyperlink["https://docs.racket-lang.org/quickscript/index.html"]{Quickscript}.
 
 The Script Plugin's purpose is to make it easy to extend DrRacket with small Racket scripts
 that can be used in the definition (or interaction) window, or to graphically interact with the user.
